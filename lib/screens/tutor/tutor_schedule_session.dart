@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fourstudent/utils/constants.dart';
 
 class TutorScheduleSession extends StatefulWidget {
   const TutorScheduleSession({super.key});
@@ -99,7 +100,7 @@ class _TutorScheduleSessionState extends State<TutorScheduleSession> {
         'room': _roomController.text.trim(),
         'status': 'upcoming',
         'currentStudents': 0,
-        'maxStudents': 30,
+        'maxStudents': AppLimits.maxStudentsPerSession,
         'createdAt': Timestamp.now(),
       });
 

@@ -6,6 +6,7 @@ import 'tutor_schedule_session.dart';
 import 'tutor_profile.dart';
 import 'tutor_attendance.dart';
 import '../shared/qr_test_screen.dart';
+import 'package:fourstudent/utils/constants.dart';
 
 class TutorHomeDashboard extends StatefulWidget {
   const TutorHomeDashboard({super.key});
@@ -252,15 +253,22 @@ class _TutorHomeContentState extends State<TutorHomeContent> {
                                       ? Colors.green
                                       : Colors.orange;
                                   return Padding(
-                                    padding:
-                                    const EdgeInsets.only(bottom: 10),
-                                    child: _buildSessionCard(
-                                      '${d['courseCode']} - ${d['courseName']}',
-                                      _formatTime(d['dateTime'] ?? ''),
-                                      '${d['currentStudents'] ?? 0}/${d['maxStudents'] ?? 0} students',
-                                      status[0].toUpperCase() +
-                                          status.substring(1),
-                                      statusColor,
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: StreamBuilder<QuerySnapshot>(
+                                      stream: _db
+                                        .collection('enrollments')
+                                        .where('sessionId', isEqualTo: doc.id)
+                                        .snapshots(),
+                                        builder: (context, enrollSnap){
+                                          final enrolledCount = enrollSnap.data?.docs.length ?? 0;
+                                          return _buildSessionCard(
+                                            '${d['courseCode']} - ${d['courseName']}',
+                                            _formatTime(d['dateTime'] ?? ''), 
+                                            '$enrolledCount/${AppLimits.maxStudentsPerSession} students', 
+                                            status[0].toUpperCase() + status.substring(1), 
+                                            statusColor,
+                                          );
+                                        }
                                     ),
                                   );
                                 }).toList(),
@@ -335,7 +343,7 @@ class _TutorHomeContentState extends State<TutorHomeContent> {
 
                             final rate = totalSessions > 0 &&
                                 totalCheckins > 0
-                                ? '${((totalCheckins / (totalSessions * 30)) * 100).clamp(0, 100).toStringAsFixed(0)}%'
+                                ? '${((totalCheckins / (totalSessions * AppLimits.maxStudentsPerSession)) * 100).clamp(0, 100).toStringAsFixed(0)}%'
                                 : '0%';
 
                             return Container(

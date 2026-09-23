@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'tutor_attendance_details.dart';
+import 'package:fourstudent/utils/constants.dart';
 
 class TutorAttendance extends StatelessWidget {
   const TutorAttendance({super.key});
@@ -48,7 +49,7 @@ class TutorAttendance extends StatelessWidget {
               final totalSessions = allSessions.length;
               final totalCheckins = confirmedCheckins.length;
               final avgRate = totalSessions > 0 && totalCheckins > 0
-                  ? '${((totalCheckins / (totalSessions * 30)) * 100).clamp(0, 100).toStringAsFixed(0)}%'
+                  ? '${((totalCheckins / (totalSessions * AppLimits.maxStudentsPerSession)) * 100).clamp(0, 100).toStringAsFixed(0)}%'
                   : '0%';
 
               // Completed sessions only for history
@@ -141,7 +142,7 @@ class TutorAttendance extends StatelessWidget {
                                   doc.id)
                                   .length;
                               final max =
-                              (d['maxStudents'] ?? 30) as int;
+                              (d['maxStudents'] ?? AppLimits.maxStudentsPerSession) as int;
                               final rate = max > 0
                                   ? '${((sessionCheckins / max) * 100).clamp(0, 100).toStringAsFixed(0)}%'
                                   : '0%';

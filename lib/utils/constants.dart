@@ -74,6 +74,11 @@ class AppDimensions {
   static const double iconSizeXLarge = 40.0;
 }
 
+// Session Capacity
+class AppLimits{
+  static const int maxStudentsPerSession = 15;
+}
+
 // App Strings
 class AppStrings {
   // App Name

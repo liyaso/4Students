@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fourstudent/utils/constants.dart';
 
 class StudentScheduleSession extends StatefulWidget {
   const StudentScheduleSession({super.key});
@@ -245,7 +246,7 @@ class _SessionCard extends StatefulWidget {
   final int currentStudents;
   final String studentUid;
 
-  static const int maxStudents = 15;
+  static const int maxStudents = AppLimits.maxStudentsPerSession;
 
   const _SessionCard({
     required this.sessionId,

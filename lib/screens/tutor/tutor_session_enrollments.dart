@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fourstudent/utils/constants.dart';
 
 class TutorSessionEnrollments extends StatelessWidget {
   final String sessionId;
@@ -17,7 +18,7 @@ class TutorSessionEnrollments extends StatelessWidget {
     required this.room,
   });
 
-  static const int maxStudents = 15;
+  static const int maxStudents = AppLimits.maxStudentsPerSession;
 
   @override
   Widget build(BuildContext context) {
