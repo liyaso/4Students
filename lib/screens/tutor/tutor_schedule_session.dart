@@ -407,7 +407,9 @@ class _TutorScheduleSessionState extends State<TutorScheduleSession> {
 
   Widget _buildSessionCard(String sessionId, Map<String, dynamic> data) {
     final status = data['status'] ?? 'upcoming';
-    final statusColor = status == 'active' ? Colors.green : Colors.orange;
+    final statusColor = status == 'active' 
+      ? Colors.green : status == 'completed' 
+        ? Colors.grey : Colors.orange;
 
     return Container(
       width: double.infinity,
@@ -538,6 +540,47 @@ class _TutorScheduleSessionState extends State<TutorScheduleSession> {
                       style:
                       TextStyle(fontSize: 10, color: Colors.white)),
                 ),
+              if (status == 'active') ...[
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => showDialog(
+                    context: context, 
+                    builder: (_) => AlertDialog(
+                      title: const Text('Complete Session'),
+                      content: const Text('Mark this session as completed? This cannot be undone.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancel')),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await _db
+                              .collection('sessions')
+                              .doc(sessionId)
+                              .update({'status': 'completed'});
+                            if(!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Session marked as complete.'),
+                                backgroundColor: Color(0xFF0047AB),
+                              ),
+                            );
+                          }, 
+                          child: const Text('Complete', style: TextStyle(color: Color(0xFF0047AB))),
+                        ),
+                      ],
+                    ),
+                  ), 
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0047AB),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                ),
+                child: const Text('Complete Session',
+                  style: TextStyle(fontSize: 10, color: Colors.white)),
+                ),
+              ],
             ],
           ),
         ],
