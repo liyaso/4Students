@@ -290,6 +290,7 @@ class _TutorHomeContentState extends State<TutorHomeContent> {
                         return StreamBuilder<QuerySnapshot>(
                           stream: _db
                               .collection('checkins')
+                              .where('tutorId', isEqualTo: _uid)
                               .where('status', isEqualTo: 'confirmed')
                               .snapshots(),
                           builder: (context, checkinSnap) {
@@ -304,12 +305,10 @@ class _TutorHomeContentState extends State<TutorHomeContent> {
                             int totalSessions = 0;
 
                             if (sessionSnap.hasData) {
-                              final sessionIds = <String>{};
                               for (final doc in sessionSnap.data!.docs) {
                                 final d =
                                 doc.data() as Map<String, dynamic>;
                                 totalSessions++;
-                                sessionIds.add(doc.id);
                                 try {
                                   final dt =
                                   DateTime.parse(d['dateTime'] ?? '');
@@ -320,21 +319,14 @@ class _TutorHomeContentState extends State<TutorHomeContent> {
                               }
 
                               if (checkinSnap.hasData) {
-                                for (final doc
-                                in checkinSnap.data!.docs) {
-                                  final d =
-                                  doc.data() as Map<String, dynamic>;
-                                  if (sessionIds
-                                      .contains(d['sessionId'])) {
-                                    totalCheckins++;
-                                    final scannedAt = d['scannedAt'];
-                                    if (scannedAt != null) {
-                                      final dt =
-                                      (scannedAt as Timestamp)
-                                          .toDate();
-                                      if (dt.isAfter(weekStart)) {
-                                        weekCheckins++;
-                                      }
+                                for (final doc in checkinSnap.data!.docs) {
+                                  final d = doc.data() as Map<String, dynamic>;
+                                  totalCheckins++;
+                                  final scannedAt = d['scannedAt'];
+                                  if (scannedAt != null) {
+                                    final dt = (scannedAt as Timestamp).toDate();
+                                    if (dt.isAfter(weekStart)) {
+                                      weekCheckins++;
                                     }
                                   }
                                 }

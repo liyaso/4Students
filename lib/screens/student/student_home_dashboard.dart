@@ -235,9 +235,12 @@ class StudentHomeContent extends StatelessWidget {
 
                               // Step 2: fetch those sessions
                               return StreamBuilder<QuerySnapshot>(
-                                stream: db
-                                    .collection('sessions')
-                                    .snapshots(),
+                                stream: enrolledSessionIds.isEmpty
+                                ? const Stream.empty()
+                                : db
+                                  .collection('sessions')
+                                  .where(FieldPath.documentId, whereIn: enrolledSessionIds)
+                                  .snapshots(),
                                 builder: (context, sessionSnap) {
                                   if (!sessionSnap.hasData) {
                                     return const Center(
