@@ -71,9 +71,11 @@ class _StudentScanQRState extends State<StudentScanQR> {
       }
 
       // 3. Write pending checkin
+      final tutorId = qrDoc['tutorId'] as String;
       await _db.collection('checkins').add({
         'studentId': uid,
         'sessionId': sessionId,
+        'tutorId': tutorId,
         'qrCodeId': qrCodeId,
         'status': 'pending',
         'scannedAt': Timestamp.now(),

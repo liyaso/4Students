@@ -32,18 +32,16 @@ class TutorAttendance extends StatelessWidget {
           }
 
           final allSessions = sessionSnap.data?.docs ?? [];
-          final sessionIds = allSessions.map((d) => d.id).toList();
 
           return StreamBuilder<QuerySnapshot>(
             stream: db
                 .collection('checkins')
+                .where('tutorId', isEqualTo: uid)
                 .where('status', isEqualTo: 'confirmed')
                 .snapshots(),
             builder: (context, checkinSnap) {
               // Only count checkins for this tutor's sessions
               final confirmedCheckins = (checkinSnap.data?.docs ?? [])
-                  .where((d) => sessionIds
-                  .contains((d.data() as Map)['sessionId']))
                   .toList();
 
               final totalSessions = allSessions.length;
