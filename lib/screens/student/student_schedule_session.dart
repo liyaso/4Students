@@ -302,9 +302,33 @@ class _SessionCardState extends State<_SessionCard> {
           );
         }
       } else {
-        // Reserve — check capacity first
-        if (enrolledCount >= _SessionCard.maxStudents) {
-          if (mounted) {
+        // Reserve — atomic capacity check (make sure 2 students can't reserve the last spot at the same time)
+        final sessionRef = db.collection('sessions').doc(widget.sessionId);
+        final enrollmentRef = db.collection('enrollments').doc();
+        bool full = false;
+
+        await db.runTransaction((transaction) async {
+          final sessionSnap = await transaction.get(sessionRef);
+          final currentCount = (sessionSnap.data()?['enrolledCount'] ?? 0) as int;
+
+          if (currentCount >= _SessionCard.maxStudents){
+            full = true;
+            return;
+          }
+
+          transaction.set(enrollmentRef, {
+            'studentId': widget.studentUid,
+            'sessionId': widget.sessionId,
+            'enrolledAt': Timestamp.now(),
+          });
+
+          transaction.update(sessionRef, {
+            'enrolledCount': currentCount + 1,
+          });
+        });
+
+        if(full){
+          if(mounted){
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('This session is full.'),
@@ -313,28 +337,18 @@ class _SessionCardState extends State<_SessionCard> {
             );
           }
           setState(() => _reserving = false);
-          return;
+            return;
+        }
+          if(mounted){
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Session reserved successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
         }
 
-        await db.collection('enrollments').add({
-          'studentId': widget.studentUid,
-          'sessionId': widget.sessionId,
-          'enrolledAt': Timestamp.now(),
-        });
-
-        await db.collection('sessions').doc(widget.sessionId).update({
-          'enrolledCount': enrolledCount + 1,
-        });
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Session reserved successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
